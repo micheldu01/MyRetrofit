@@ -5,11 +5,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
+import android.widget.QuickContactBadge;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.List;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -20,6 +21,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     private ListView listView;
+    private TextView textView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         listView = (ListView) findViewById(R.id.list_view);
+        textView = (TextView) findViewById(R.id.michel_txt);
+
 
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -37,38 +42,40 @@ public class MainActivity extends AppCompatActivity {
 
         Api api = retrofit.create(Api.class);
 
-        Call<List<Hero>> call = api.getHeroes();
+        Call<NYresult> call = api.getTopstories();
 
-        call.enqueue(new Callback<List<Hero>>() {
+        call.enqueue(new Callback<NYresult>() {
             @Override
-            public void onResponse(Call<List<Hero>> call, Response<List<Hero>> response) {
-                List<Hero> heroes = response.body();
+            public void onResponse(Call<NYresult> call, Response<NYresult> response) {
 
-                String[] heroNames = new String [heroes.size()];
 
-                for(int i = 0; i < heroes.size(); i++){
+                NYresult topstories = response.body();
 
-                    heroNames[i] = heroes.get(i).getTitle();
 
-                }
+                Log.e("myretrofit","la réponse = " + topstories.getResults());
 
-                listView.setAdapter(
-                        new ArrayAdapter<String >(
-                              getApplicationContext(),
-                                android.R.layout.simple_list_item_1,
-                                heroNames
 
-                        )
-                );
 
+                    String[] myresults = new String [topstories.getResults().size()];
+
+                    for(int i = 0; i < topstories.getResults().size(); i++){
+                        myresults[i] = topstories.getResults().get(i).getTitle();
+                    }
+
+                final ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                        (MainActivity.this, android.R.layout.simple_list_item_1,
+                                myresults);
+                listView.setAdapter(adapter);
+
+
+                textView.setText("michel");
             }
 
             @Override
-            public void onFailure(Call<List<Hero>> call, Throwable t) {
+            public void onFailure(Call<NYresult> call, Throwable t) {
                 Toast.makeText(getApplicationContext(), t.getMessage(),Toast.LENGTH_LONG).show();
             }
         });
-
 
     }
 }

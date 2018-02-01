@@ -33,6 +33,6 @@ public interface Api {
     String BASE_URL = "https://api.nytimes.com/";
 
     @GET("svc/topstories/v2/home.json?api-key=c69e095eadba4c708c5d4ffeb0699a41")
-    Call<List<Hero>> getHeroes();
+    Call<NYresult> getTopstories();
 
 }
